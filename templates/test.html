@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rehab Care 智慧復健系統</title>
+<style>
+:root{
+    --bg:#eef4ff;
+    --panel:#ffffff;
+    --line:#d8e3f2;
+    --text:#20324d;
+    --muted:#6f819a;
+    --blue:#3267d6;
+    --blue2:#5a8cff;
+    --green:#27b36a;
+    --red:#df4e4e;
+    --orange:#f0a43a;
+    --shadow:0 10px 28px rgba(27,68,141,.12);
+}
+*{box-sizing:border-box}
+html,body{
+    margin:0;
+    padding:0;
+    font-family:"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;
+    background:linear-gradient(135deg,#f6f9ff,#eaf1ff);
+    color:var(--text);
+}
+button,input,select{font:inherit}
+.hidden{display:none!important}
+
+.auth-layout{
+    min-height:100vh;
+    display:grid;
+    grid-template-columns:1.05fr .95fr;
+    gap:22px;
+    padding:22px;
+}
+.left-side{
+    border-radius:28px;
+    padding:34px;
+    color:#fff;
+    background:
+        radial-gradient(circle at top right, rgba(255,255,255,.20), transparent 22%),
+        linear-gradient(145deg,#234a94,#3b72e2 58%, #83afff);
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+.badge{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.18);
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    margin-bottom:16px;
+}
+.left-side h1{
+    margin:0 0 12px;
+    font-size:54px;
+    line-height:1.05;
+}
+.left-side p{
+    margin:0;
+    line-height:1.9;
+    font-size:17px;
+    opacity:.97;
+}
+.feature-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-top:28px;
+}
+.feature{
+    border-radius:18px;
+    padding:18px;
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.16);
+}
+.feature h3{
+    margin:0 0 8px;
+    font-size:18px;
+}
+.feature p{
+    font-size:14px;
+    line-height:1.75;
+}
+.bottom-grid{
+    margin-top:28px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+.glass{
+    border-radius:18px;
+    padding:18px;
+    background:rgba(255,255,255,.13);
+    border:1px solid rgba(255,255,255,.16);
+}
+.glass h4{
+    margin:0 0 8px;
+}
+.glass p{
+    font-size:14px;
+    line-height:1.8;
+}
+
+.right-side{
+    border-radius:28px;
+    background:linear-gradient(180deg,#ffffff,#f8fbff);
+    box-shadow:var(--shadow);
+    padding:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.auth-card{
+    width:100%;
+    max-width:470px;
+}
+.auth-card h2{
+    text-align:center;
+    margin:0 0 8px;
+    font-size:40px;
+}
+.auth-sub{
+    margin:0 0 18px;
+    text-align:center;
+    color:var(--muted);
+    line-height:1.8;
+}
+.role-tabs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:18px;
+}
+.role-btn{
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    background:#eaf2ff;
+    color:#2852a8;
+    font-weight:700;
+    cursor:pointer;
+}
+.role-btn.active{
+    background:linear-gradient(135deg,var(--blue),var(--blue2));
+    color:#fff;
+}
+.field{
+    margin-bottom:12px;
+}
+.field label{
+    display:block;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+.field input, .field select{
+    width:100%;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fbfdff;
+    outline:none;
+}
+.field input:focus,.field select:focus{
+    border-color:#7ea7ff;
+    box-shadow:0 0 0 4px rgba(61,116,231,.11);
+}
+.primary-btn{
+    width:100%;
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    background:linear-gradient(135deg,var(--green),#56d891);
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:6px;
+}
+.row-links{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:14px;
+}
+.link-btn{
+    color:var(--blue);
+    font-weight:700;
+    cursor:pointer;
+    font-size:14px;
+}
+.msg{
+    margin-top:12px;
+    min-height:20px;
+    font-size:14px;
+    font-weight:700;
+}
+.msg.ok{color:var(--green)}
+.msg.err{color:var(--red)}
+.note{
+    margin-top:16px;
+    border:1px solid #e6eef9;
+    background:#f7faff;
+    border-radius:14px;
+    padding:14px;
+}
+.note strong{
+    display:block;
+    margin-bottom:6px;
+    font-size:14px;
+}
+.note span{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.75;
+}
+
+.dashboard{
+    display:none;
+}
+.sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:240px;
+    min-height:100vh;
+    background:linear-gradient(180deg,#244f9c,#3d74e7);
+    color:#fff;
+    padding:22px 16px;
+    box-shadow:var(--shadow);
+}
+.sidebar h2{
+    margin:0 0 6px;
+    font-size:30px;
+}
+.sidebar .sub{
+    font-size:13px;
+    opacity:.92;
+    margin-bottom:22px;
+}
+.menu-btn{
+    display:block;
+    width:100%;
+    border:none;
+    border-radius:14px;
+    padding:14px;
+    margin-bottom:10px;
+    text-align:left;
+    color:#fff;
+    background:rgba(255,255,255,.10);
+    cursor:pointer;
+    font-weight:700;
+}
+.menu-btn.active,
+.menu-btn:hover{
+    background:rgba(255,255,255,.22);
+}
+.logout-btn{
+    margin-top:18px;
+    background:rgba(255,255,255,.16)!important;
+}
+.main{
+    margin-left:260px;
+    padding:28px;
+}
+.page-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:18px;
+}
+.page-head h1{
+    margin:0;
+    font-size:34px;
+}
+.page-head p{
+    margin:8px 0 0;
+    color:var(--muted);
+}
+.status-badge{
+    padding:10px 14px;
+    border-radius:999px;
+    font-weight:700;
+    border:1px solid #d6eadf;
+    background:#eefaf3;
+    color:#238558;
+}
+.section{display:none}
+.section.active{display:block}
+
+.grid-4{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:18px;
+}
+.stat{
+    background:var(--panel);
+    border:1px solid #ebf1fa;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:var(--shadow);
+}
+.stat p{
+    margin:0 0 8px;
+    color:var(--muted);
+    font-size:14px;
+}
+.stat h3{
+    margin:0;
+    font-size:30px;
+    color:#244f9c;
+}
+.card{
+    background:var(--panel);
+    border:1px solid #ebf1fa;
+    border-radius:18px;
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+}
+.card h2{
+    margin:0 0 12px;
+    font-size:22px;
+}
+.card p{
+    margin:0;
+    line-height:1.9;
+    color:var(--muted);
+}
+.split{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:18px;
+}
+.table-wrap{
+    overflow:auto;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    padding:12px 10px;
+    border-bottom:1px solid #edf2fa;
+    text-align:left;
+    font-size:14px;
+}
+th{
+    color:var(--muted);
+    font-weight:700;
+}
+.action-btn{
+    border:none;
+    border-radius:10px;
+    padding:8px 12px;
+    font-weight:700;
+    cursor:pointer;
+    margin-right:6px;
+    margin-bottom:6px;
+}
+.btn-blue{background:#eaf2ff;color:#244f9c}
+.btn-green{background:#eafaf2;color:#23915b}
+.btn-red{background:#fff2f2;color:#cc4343}
+.btn-orange{background:#fff8eb;color:#c7821d}
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+.form-grid input, .form-grid select{
+    width:100%;
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fbfdff;
+}
+.notice{
+    padding:14px 16px;
+    border-radius:14px;
+    border:1px solid #f6e3b4;
+    background:#fff8ec;
+    margin-bottom:12px;
+}
+.notice.red{
+    background:#fff2f2;
+    border-color:#f3caca;
+}
+.data-box{
+    background:#f7fbff;
+    border:1px solid #e3eefc;
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:12px;
+}
+.small-muted{
+    color:var(--muted);
+    font-size:14px;
+}
+.inline-msg{
+    margin-top:12px;
+    font-size:14px;
+    font-weight:700;
+}
+
+@media(max-width:1100px){
+    .auth-layout{grid-template-columns:1fr}
+    .grid-4{grid-template-columns:repeat(2,1fr)}
+    .split{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="auth-layout" id="authPage">
+    <div class="left-side">
+        <div>
+            <div class="badge">SMART REHABILITATION PLATFORM</div>
+            <h1>Rehab Care</h1>
+            <p>
+                智慧復健監測系統，整合使用者註冊、醫護審核啟用、訓練數據與歷史紀錄管理。
+                這版先用純 HTML + JavaScript 完成可操作展示流程。
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature">
+                    <h3>使用者註冊</h3>
+                    <p>使用者先完成帳號申請，等待醫護端審核與啟用。</p>
+                </div>
+                <div class="feature">
+                    <h3>醫護端審核</h3>
+                    <p>醫護登入後可查看所有註冊者，並執行啟用或停用。</p>
+                </div>
+                <div class="feature">
+                    <h3>狀態控管</h3>
+                    <p>未啟用者不得登入，流程更接近真實醫療系統。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="glass">
+                <h4>展示流程</h4>
+                <p>
+                    1. 使用者註冊<br>
+                    2. 醫護端看到註冊名單<br>
+                    3. 按啟用 / 停用<br>
+                    4. 使用者依狀態登入
+                </p>
+            </div>
+            <div class="glass">
+                <h4>目前版本</h4>
+                <p>
+                    本機展示版，資料儲存在瀏覽器 localStorage。<br>
+                    同一台裝置可完整展示所有按鍵流程。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-side">
+        <!-- 登入頁 -->
+        <div class="auth-card" id="loginCard">
+            <h2>系統登入</h2>
+            <p class="auth-sub">請選擇登入身分</p>
+
+            <div class="role-tabs">
+                <button class="role-btn active" id="userRoleBtn" onclick="setRole('user')">使用者登入</button>
+                <button class="role-btn" id="staffRoleBtn" onclick="setRole('staff')">醫護登入</button>
+            </div>
+
+            <div class="field">
+                <label id="loginAccountLabel">帳號</label>
+                <input id="loginAccount" type="text" placeholder="請輸入帳號">
+            </div>
+
+            <div class="field">
+                <label>密碼</label>
+                <input id="loginPassword" type="password" placeholder="請輸入密碼">
+            </div>
+
+            <div class="field hidden" id="staffCodeField">
+                <label>醫護端代碼</label>
+                <input id="staffCode" type="text" placeholder="請輸入醫護端代碼">
+            </div>
+
+            <button class="primary-btn" onclick="login()">登入系統</button>
+
+            <div class="row-links">
+                <div class="link-btn" onclick="showRegister()">第一次使用請註冊</div>
+                <div class="link-btn" onclick="resetDemo()">重設展示資料</div>
+            </div>
+
+            <div class="msg" id="loginMsg"></div>
+
+            <div class="note">
+                <strong>登入說明</strong>
+                <span>
+                    使用者註冊後需等待醫護端啟用。<br>
+                    醫護端登入需輸入代碼：<b>CARE2026</b>
+                </span>
+            </div>
+        </div>
+
+        <!-- 註冊頁 -->
+        <div class="auth-card hidden" id="registerCard">
+            <h2>使用者註冊</h2>
+            <p class="auth-sub">註冊後需等待醫護端啟用</p>
+
+            <div class="field">
+                <label>姓名</label>
+                <input id="regName" type="text" placeholder="請輸入姓名">
+            </div>
+
+            <div class="field">
+                <label>帳號</label>
+                <input id="regAccount" type="text" placeholder="請設定帳號">
+            </div>
+
+            <div class="field">
+                <label>身分證字號</label>
+                <input id="regId" type="text" placeholder="請輸入身分證字號">
+            </div>
+
+            <div class="field">
+                <label>手機號碼</label>
+                <input id="regPhone" type="text" placeholder="請輸入手機號碼">
+            </div>
+
+            <div class="field">
+                <label>密碼</label>
+                <input id="regPassword" type="password" placeholder="請輸入密碼">
+            </div>
+
+            <button class="primary-btn" onclick="registerUser()">完成註冊</button>
+
+            <div class="row-links">
+                <div class="link-btn" onclick="backToLogin()">返回登入頁</div>
+            </div>
+
+            <div class="msg" id="registerMsg"></div>
+
+            <div class="note">
+                <strong>註冊說明</strong>
+                <span>
+                    註冊完成後，資料會出現在醫護端病人列表中。<br>
+                    醫護按下「啟用」後，使用者才可登入。
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard" id="dashboard">
+    <div class="sidebar">
+        <h2>Rehab Care</h2>
+        <div class="sub" id="sidebarRoleText">使用者端後台</div>
+
+        <div id="userMenu">
+            <button class="menu-btn active" onclick="showSection('userDashboard',this)">儀表板</button>
+            <button class="menu-btn" onclick="showSection('userData',this)">個人數據</button>
+            <button class="menu-btn" onclick="showSection('userHistory',this)">歷史紀錄</button>
+        </div>
+
+        <div id="staffMenu" class="hidden">
+            <button class="menu-btn active" onclick="showSection('staffDashboard',this)">醫護儀表板</button>
+            <button class="menu-btn" onclick="showSection('patientList',this)">病人列表</button>
+            <button class="menu-btn" onclick="showSection('patientSearch',this)">病人數據查詢</button>
+        </div>
+
+        <button class="menu-btn logout-btn" onclick="logout()">登出</button>
+    </div>
+
+    <div class="main">
+        <!-- 使用者端 -->
+        <div class="section active" id="userDashboard">
+            <div class="page-head">
+                <div>
+                    <h1>使用者儀表板</h1>
+                    <p>登入後可查看個人訓練資訊與歷史紀錄。</p>
+                </div>
+                <div class="status-badge">已登入</div>
+            </div>
+
+            <div class="grid-4">
+                <div class="stat"><p>帳號</p><h3 id="userStatAccount">-</h3></div>
+                <div class="stat"><p>狀態</p><h3 id="userStatStatus">-</h3></div>
+                <div class="stat"><p>最近模式</p><h3>自動</h3></div>
+                <div class="stat"><p>最近訓練</p><h3>20 分</h3></div>
+            </div>
+
+            <div class="split">
+                <div class="card">
+                    <h2>最近一次訓練摘要</h2>
+                    <p>
+                        平均 RPM：42<br>
+                        平均心率：88 bpm<br>
+                        平均血氧：98%<br>
+                        評估：穩定
+                    </p>
+                </div>
+                <div class="card">
+                    <h2>個人資訊</h2>
+                    <p id="userProfileInfo">-</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="userData">
+            <div class="page-head">
+                <div>
+                    <h1>個人數據</h1>
+                    <p>顯示最後一次訓練的摘要資料。</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="data-box">心率：76 bpm</div>
+                <div class="data-box">血氧：98 %</div>
+                <div class="data-box">模式：自動模式</div>
+                <div class="data-box">段位：3</div>
+                <div class="data-box">時間：18 分鐘</div>
+            </div>
+        </div>
+
+        <div class="section" id="userHistory">
+            <div class="page-head">
+                <div>
+                    <h1>歷史紀錄</h1>
+                    <p>顯示過往訓練紀錄。</p>
+                </div>
+            </div>
+            <div class="card table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>訓練時間</th>
+                            <th>平均 RPM</th>
+                            <th>平均心率</th>
+                            <th>結果</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>2026-03-30</td><td>20 分鐘</td><td>42</td><td>88 bpm</td><td>正常</td></tr>
+                        <tr><td>2026-03-28</td><td>18 分鐘</td><td>40</td><td>91 bpm</td><td>輕度疲勞</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 醫護端 -->
+        <div class="section" id="staffDashboard">
+            <div class="page-head">
+                <div>
+                    <h1>醫護儀表板</h1>
+                    <p>可查看註冊者、啟用帳號與停用帳號。</p>
+                </div>
+                <div class="status-badge">醫護端</div>
+            </div>
+
+            <div class="grid-4">
+                <div class="stat"><p>總註冊人數</p><h3 id="countAll">0</h3></div>
+                <div class="stat"><p>已啟用</p><h3 id="countActive">0</h3></div>
+                <div class="stat"><p>待啟用</p><h3 id="countPending">0</h3></div>
+                <div class="stat"><p>已停用</p><h3 id="countDisabled">0</h3></div>
+            </div>
+
+            <div class="card">
+                <h2>系統提醒</h2>
+                <p>使用者註冊後，請至病人列表確認並按下啟用或停用。</p>
+            </div>
+        </div>
+
+        <div class="section" id="patientList">
+            <div class="page-head">
+                <div>
+                    <h1>病人列表</h1>
+                    <p>所有註冊資料都會顯示在這裡。</p>
+                </div>
+            </div>
+
+            <div class="card table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>帳號</th>
+                            <th>身分證字號</th>
+                            <th>手機號碼</th>
+                            <th>狀態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientTableBody">
+                    </tbody>
+                </table>
+                <div class="small-muted" style="margin-top:12px;">目前資料為本機展示資料。</div>
+            </div>
+        </div>
+
+        <div class="section" id="patientSearch">
+            <div class="page-head">
+                <div>
+                    <h1>病人數據查詢</h1>
+                    <p>依帳號、身分證字號或手機號碼查詢。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="form-grid">
+                    <input id="searchKeyword" type="text" placeholder="輸入帳號 / 身分證字號 / 手機號碼">
+                    <button class="action-btn btn-blue" style="padding:12px 14px;" onclick="searchPatient()">查詢</button>
+                </div>
+                <div class="inline-msg" id="searchMsg"></div>
+            </div>
+
+            <div class="card" id="searchResultCard">
+                <h2>查詢結果</h2>
+                <p id="searchResultText">尚未查詢。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const STAFF_ACCOUNT = "nurse";
+const STAFF_PASSWORD = "1234";
+const STAFF_CODE = "CARE2026";
+
+let currentRole = "user";
+let currentUser = null;
+
+function getUsers(){
+    return JSON.parse(localStorage.getItem("rehab_users") || "[]");
+}
+
+function saveUsers(users){
+    localStorage.setItem("rehab_users", JSON.stringify(users));
+}
+
+function initDemoData(){
+    if(!localStorage.getItem("rehab_users")){
+        saveUsers([]);
+    }
+}
+
+function resetDemo(){
+    if(confirm("確定要清空所有展示資料嗎？")){
+        localStorage.removeItem("rehab_users");
+        localStorage.removeItem("rehab_current_user");
+        initDemoData();
+        alert("已重設完成");
+        location.reload();
+    }
+}
+
+function setRole(role){
+    currentRole = role;
+    document.getElementById("userRoleBtn").classList.remove("active");
+    document.getElementById("staffRoleBtn").classList.remove("active");
+    document.getElementById("staffCodeField").classList.add("hidden");
+
+    if(role === "user"){
+        document.getElementById("userRoleBtn").classList.add("active");
+        document.getElementById("loginAccountLabel").innerText = "帳號";
+        document.getElementById("loginAccount").placeholder = "請輸入帳號";
+    }else{
+        document.getElementById("staffRoleBtn").classList.add("active");
+        document.getElementById("loginAccountLabel").innerText = "醫護帳號";
+        document.getElementById("loginAccount").placeholder = "請輸入醫護帳號";
+        document.getElementById("staffCodeField").classList.remove("hidden");
+    }
+
+    document.getElementById("loginMsg").className = "msg";
+    document.getElementById("loginMsg").innerText = "";
+}
+
+function showRegister(){
+    document.getElementById("loginCard").classList.add("hidden");
+    document.getElementById("registerCard").classList.remove("hidden");
+    document.getElementById("registerMsg").className = "msg";
+    document.getElementById("registerMsg").innerText = "";
+}
+
+function backToLogin(){
+    document.getElementById("registerCard").classList.add("hidden");
+    document.getElementById("loginCard").classList.remove("hidden");
+    document.getElementById("registerMsg").className = "msg";
+    document.getElementById("registerMsg").innerText = "";
+}
+
+function registerUser(){
+    const name = document.getElementById("regName").value.trim();
+    const account = document.getElementById("regAccount").value.trim();
+    const idNo = document.getElementById("regId").value.trim();
+    const phone = document.getElementById("regPhone").value.trim();
+    const password = document.getElementById("regPassword").value.trim();
+    const msg = document.getElementById("registerMsg");
+
+    if(!name || !account || !idNo || !phone || !password){
+        msg.className = "msg err";
+        msg.innerText = "請完整填寫所有欄位";
+        return;
+    }
+
+    let users = getUsers();
+
+    const duplicate = users.find(u =>
+        u.account === account || u.idNo === idNo || u.phone === phone
+    );
+
+    if(duplicate){
+        msg.className = "msg err";
+        msg.innerText = "帳號、身分證字號或手機號碼已存在";
+        return;
+    }
+
+    users.push({
+        name,
+        account,
+        idNo,
+        phone,
+        password,
+        status: "pending"
+    });
+
+    saveUsers(users);
+
+    msg.className = "msg ok";
+    msg.innerText = "註冊成功，請等待醫護端啟用";
+
+    document.getElementById("regName").value = "";
+    document.getElementById("regAccount").value = "";
+    document.getElementById("regId").value = "";
+    document.getElementById("regPhone").value = "";
+    document.getElementById("regPassword").value = "";
+
+    setTimeout(() => {
+        backToLogin();
+    }, 900);
+}
+
+function login(){
+    const account = document.getElementById("loginAccount").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    const staffCode = document.getElementById("staffCode").value.trim();
+    const msg = document.getElementById("loginMsg");
+
+    if(currentRole === "staff"){
+        if(account !== STAFF_ACCOUNT || password !== STAFF_PASSWORD){
+            msg.className = "msg err";
+            msg.innerText = "醫護帳號或密碼錯誤";
+            return;
+        }
+        if(staffCode !== STAFF_CODE){
+            msg.className = "msg err";
+            msg.innerText = "醫護端代碼錯誤";
+            return;
+        }
+        currentUser = null;
+        enterDashboard("staff");
+        return;
+    }
+
+    const users = getUsers();
+    const user = users.find(u => u.account === account && u.password === password);
+
+    if(!user){
+        msg.className = "msg err";
+        msg.innerText = "使用者帳號或密碼錯誤";
+        return;
+    }
+
+    if(user.status === "pending"){
+        msg.className = "msg err";
+        msg.innerText = "帳號尚未啟用，請等待醫護端審核";
+        return;
+    }
+
+    if(user.status === "disabled"){
+        msg.className = "msg err";
+        msg.innerText = "帳號已停用，請聯絡醫護人員";
+        return;
+    }
+
+    currentUser = user;
+    localStorage.setItem("rehab_current_user", JSON.stringify(user));
+    enterDashboard("user");
+}
+
+function enterDashboard(role){
+    document.getElementById("authPage").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+
+    if(role === "staff"){
+        document.getElementById("sidebarRoleText").innerText = "醫護端後台";
+        document.getElementById("userMenu").classList.add("hidden");
+        document.getElementById("staffMenu").classList.remove("hidden");
+        document.getElementById("staffDashboard").classList.add("active");
+        document.querySelector("#staffMenu .menu-btn").classList.add("active");
+        renderStaffDashboard();
+        renderPatientTable();
+    }else{
+        document.getElementById("sidebarRoleText").innerText = "使用者端後台";
+        document.getElementById("staffMenu").classList.add("hidden");
+        document.getElementById("userMenu").classList.remove("hidden");
+        document.getElementById("userDashboard").classList.add("active");
+        document.querySelector("#userMenu .menu-btn").classList.add("active");
+        renderUserDashboard();
+    }
+}
+
+function logout(){
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("authPage").style.display = "grid";
+    document.getElementById("loginAccount").value = "";
+    document.getElementById("loginPassword").value = "";
+    document.getElementById("staffCode").value = "";
+    document.getElementById("loginMsg").innerText = "";
+    setRole("user");
+}
+
+function showSection(id, btn){
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    btn.parentElement.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    if(id === "patientList"){
+        renderPatientTable();
+    }
+    if(id === "staffDashboard"){
+        renderStaffDashboard();
+    }
+    if(id === "userDashboard"){
+        renderUserDashboard();
+    }
+}
+
+function renderStaffDashboard(){
+    const users = getUsers();
+    const active = users.filter(u => u.status === "active").length;
+    const pending = users.filter(u => u.status === "pending").length;
+    const disabled = users.filter(u => u.status === "disabled").length;
+
+    document.getElementById("countAll").innerText = users.length;
+    document.getElementById("countActive").innerText = active;
+    document.getElementById("countPending").innerText = pending;
+    document.getElementById("countDisabled").innerText = disabled;
+}
+
+function statusText(status){
+    if(status === "active") return "已啟用";
+    if(status === "pending") return "待啟用";
+    if(status === "disabled") return "已停用";
+    return status;
+}
+
+function renderPatientTable(){
+    const users = getUsers();
+    const tbody = document.getElementById("patientTableBody");
+    tbody.innerHTML = "";
+
+    if(users.length === 0){
+        tbody.innerHTML = `<tr><td colspan="6">目前尚無註冊資料</td></tr>`;
+        return;
+    }
+
+    users.forEach((u, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${u.name}</td>
+            <td>${u.account}</td>
+            <td>${u.idNo}</td>
+            <td>${u.phone}</td>
+            <td>${statusText(u.status)}</td>
+            <td>
+                <button class="action-btn btn-blue" onclick="viewPatient(${index})">查看</button>
+                <button class="action-btn btn-green" onclick="activateUser(${index})">啟用</button>
+                <button class="action-btn btn-red" onclick="disableUser(${index})">停用</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function activateUser(index){
+    const users = getUsers();
+    users[index].status = "active";
+    saveUsers(users);
+    renderPatientTable();
+    renderStaffDashboard();
+    alert("已啟用：" + users[index].name);
+}
+
+function disableUser(index){
+    const users = getUsers();
+    users[index].status = "disabled";
+    saveUsers(users);
+    renderPatientTable();
+    renderStaffDashboard();
+    alert("已停用：" + users[index].name);
+}
+
+function viewPatient(index){
+    const users = getUsers();
+    const u = users[index];
+    document.getElementById("searchResultText").innerHTML = `
+        姓名：${u.name}<br>
+        帳號：${u.account}<br>
+        身分證字號：${u.idNo}<br>
+        手機號碼：${u.phone}<br>
+        狀態：${statusText(u.status)}<br>
+        最後訓練摘要：平均 RPM 42、平均心率 88 bpm、平均血氧 98%
+    `;
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById("patientSearch").classList.add("active");
+    document.querySelectorAll("#staffMenu .menu-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll("#staffMenu .menu-btn")[2].classList.add("active");
+}
+
+function searchPatient(){
+    const keyword = document.getElementById("searchKeyword").value.trim();
+    const users = getUsers();
+    const msg = document.getElementById("searchMsg");
+    const result = document.getElementById("searchResultText");
+
+    if(!keyword){
+        msg.style.color = "var(--red)";
+        msg.innerText = "請輸入查詢條件";
+        return;
+    }
+
+    const u = users.find(x =>
+        x.account === keyword || x.idNo === keyword || x.phone === keyword
+    );
+
+    if(!u){
+        msg.style.color = "var(--red)";
+        msg.innerText = "查無資料";
+        result.innerText = "尚未查詢到符合的病人。";
+        return;
+    }
+
+    msg.style.color = "var(--green)";
+    msg.innerText = "查詢成功";
+    result.innerHTML = `
+        姓名：${u.name}<br>
+        帳號：${u.account}<br>
+        身分證字號：${u.idNo}<br>
+        手機號碼：${u.phone}<br>
+        狀態：${statusText(u.status)}<br>
+        近七日訓練次數：3 次<br>
+        平均 RPM：43<br>
+        平均心率：87 bpm
+    `;
+}
+
+function renderUserDashboard(){
+    const saved = JSON.parse(localStorage.getItem("rehab_current_user") || "null");
+    if(!saved) return;
+
+    const users = getUsers();
+    const current = users.find(u => u.account === saved.account);
+    if(!current) return;
+
+    currentUser = current;
+    document.getElementById("userStatAccount").innerText = current.account;
+    document.getElementById("userStatStatus").innerText = statusText(current.status);
+    document.getElementById("userProfileInfo").innerHTML = `
+        姓名：${current.name}<br>
+        帳號：${current.account}<br>
+        身分證字號：${current.idNo}<br>
+        手機號碼：${current.phone}
+    `;
+}
+
+initDemoData();
+setRole("user");
+</script>
+</body>
+</html>
