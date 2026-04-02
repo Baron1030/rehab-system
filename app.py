@@ -2,18 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import psycopg2
 import os
 
-@app.route('/api/db_test')
-def db_test():
-    try:
-        conn = get_conn()
-        c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM users")
-        count = c.fetchone()[0]
-        c.close()
-        conn.close()
-        return jsonify({"status": "success", "users_count": count})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+
 
 app = Flask(__name__)
 
@@ -239,6 +228,18 @@ def search_user():
         }
     })
 
+@app.route('/api/db_test')
+def db_test():
+    try:
+        conn = get_conn()
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) FROM users")
+        count = c.fetchone()[0]
+        c.close()
+        conn.close()
+        return jsonify({"status": "success", "users_count": count})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 
 if __name__ == "__main__":
