@@ -429,7 +429,7 @@ th{
             <h1>Rehab Care</h1>
             <p>
                 智慧復健監測系統，整合使用者註冊、醫護審核啟用、訓練數據與歷史紀錄管理。
-                這版先用純 HTML + JavaScript 完成可操作展示流程。
+                系統目前已完成帳號註冊、醫護審核、狀態控管與基本後台操作流程。
             </p>
 
             <div class="feature-grid">
@@ -459,10 +459,10 @@ th{
                 </p>
             </div>
             <div class="glass">
-                <h4>目前版本</h4>
+                <h4>系統說明</h4>
                 <p>
-                    本機展示版，資料儲存在瀏覽器 localStorage。<br>
-                    同一台裝置可完整展示所有按鍵流程。
+                    使用者註冊後，資料將提供醫護端進行帳號管理與狀態控管<br>
+                    並結合雲端資料庫、感測器資料與歷史紀錄查詢
                 </p>
             </div>
         </div>
@@ -498,7 +498,6 @@ th{
 
             <div class="row-links">
                 <div class="link-btn" onclick="showRegister()">第一次使用請註冊</div>
-                <div class="link-btn" onclick="resetDemo()">重設展示資料</div>
             </div>
 
             <div class="msg" id="loginMsg"></div>
@@ -507,7 +506,7 @@ th{
                 <strong>登入說明</strong>
                 <span>
                     使用者註冊後需等待醫護端啟用。<br>
-                    醫護端登入需輸入代碼：<b>CARE2026</b>
+                    醫護端登入需輸入醫護端驗證代碼
                 </span>
             </div>
         </div>
@@ -704,7 +703,7 @@ th{
                     <tbody id="patientTableBody">
                     </tbody>
                 </table>
-                <div class="small-muted" style="margin-top:12px;">目前資料為本機展示資料。</div>
+                <div class="small-muted" style="margin-top:12px;">目前資料顯示註冊帳號與狀態資料。</div>
             </div>
         </div>
 
@@ -754,15 +753,7 @@ function initDemoData(){
     }
 }
 
-function resetDemo(){
-    if(confirm("確定要清空所有展示資料嗎？")){
-        localStorage.removeItem("rehab_users");
-        localStorage.removeItem("rehab_current_user");
-        initDemoData();
-        alert("已重設完成");
-        location.reload();
-    }
-}
+
 
 function setRole(role){
     currentRole = role;
@@ -991,7 +982,9 @@ function renderPatientTable(){
             <td>
                 <button class="action-btn btn-blue" onclick="viewPatient(${index})">查看</button>
                 <button class="action-btn btn-green" onclick="activateUser(${index})">啟用</button>
-                <button class="action-btn btn-red" onclick="disableUser(${index})">停用</button>
+                <button class="action-btn btn-orange" onclick="disableUser(${index})">停用</button>
+		 <button class="action-btn btn-red" onclick="deleteUser(${index})">刪除</button>
+
             </td>
         `;
         tbody.appendChild(tr);
@@ -1015,6 +1008,34 @@ function disableUser(index){
     renderStaffDashboard();
     alert("已停用：" + users[index].name);
 }
+
+function deleteUser(index){
+    const users = getUsers();
+    const u = users[index];
+
+    if(!confirm("確定要刪除帳號：" + u.name + "（" + u.account + "）嗎？")){
+        return;
+    }
+
+    users.splice(index, 1);
+    saveUsers(users);
+
+    // 如果刪掉的是目前登入使用者，就清掉登入狀態
+    const saved = JSON.parse(localStorage.getItem("rehab_current_user") || "null");
+    if(saved && saved.account === u.account){
+        localStorage.removeItem("rehab_current_user");
+        currentUser = null;
+    }
+
+    renderPatientTable();
+    renderStaffDashboard();
+
+    document.getElementById("searchResultText").innerText = "尚未查詢。";
+    document.getElementById("searchMsg").innerText = "";
+
+    alert("已刪除：" + u.name);
+}
+
 
 function viewPatient(index){
     const users = getUsers();
