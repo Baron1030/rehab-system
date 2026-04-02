@@ -1,12 +1,5 @@
-<<<<<<< HEAD
 Flask
 gunicorn
 requests
 pandas
-=======
-Flask
-gunicorn
-requests
-pandas
->>>>>>> f7659cf68e4d1f4b6e5e15e9299caef42856ec22
 openpyxl
