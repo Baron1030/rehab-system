@@ -739,19 +739,7 @@ const STAFF_CODE = "CARE2026";
 let currentRole = "user";
 let currentUser = null;
 
-function getUsers(){
-    return JSON.parse(localStorage.getItem("rehab_users") || "[]");
-}
 
-function saveUsers(users){
-    localStorage.setItem("rehab_users", JSON.stringify(users));
-}
-
-function initDemoData(){
-    if(!localStorage.getItem("rehab_users")){
-        saveUsers([]);
-    }
-}
 
 
 
@@ -790,6 +778,7 @@ function backToLogin(){
     document.getElementById("registerMsg").innerText = "";
 }
 
+
 function registerUser(){
     const name = document.getElementById("regName").value.trim();
     const account = document.getElementById("regAccount").value.trim();
@@ -804,37 +793,36 @@ function registerUser(){
         return;
     }
 
-    let users = getUsers();
+    fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, account, idNo, phone, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success"){
+            msg.className = "msg ok";
+            msg.innerText = data.message;
 
-    const duplicate = users.find(u =>
-        u.account === account || u.idNo === idNo || u.phone === phone
-    );
+            document.getElementById("regName").value = "";
+            document.getElementById("regAccount").value = "";
+            document.getElementById("regId").value = "";
+            document.getElementById("regPhone").value = "";
+            document.getElementById("regPassword").value = "";
 
-    if(duplicate){
-        msg.className = "msg err";
-        msg.innerText = "帳號、身分證字號或手機號碼已存在";
-        return;
-    }
-
-    users.push({
-        name,
-        account,
-        idNo,
-        phone,
-        password,
-        status: "pending"
+            setTimeout(() => {
+                backToLogin();
+            }, 900);
+        }else{
+            msg.className = "msg err";
+            msg.innerText = data.message;
+        }
     });
+}
 
-    saveUsers(users);
 
-    msg.className = "msg ok";
-    msg.innerText = "註冊成功，請等待醫護端啟用";
 
-    document.getElementById("regName").value = "";
-    document.getElementById("regAccount").value = "";
-    document.getElementById("regId").value = "";
-    document.getElementById("regPhone").value = "";
-    document.getElementById("regPassword").value = "";
+
 
     setTimeout(() => {
         backToLogin();
@@ -847,46 +835,34 @@ function login(){
     const staffCode = document.getElementById("staffCode").value.trim();
     const msg = document.getElementById("loginMsg");
 
-    if(currentRole === "staff"){
-        if(account !== STAFF_ACCOUNT || password !== STAFF_PASSWORD){
+    fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            account,
+            password,
+            role: currentRole,
+            staffCode
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status !== "success"){
             msg.className = "msg err";
-            msg.innerText = "醫護帳號或密碼錯誤";
+            msg.innerText = data.message || "登入失敗";
             return;
         }
-        if(staffCode !== STAFF_CODE){
-            msg.className = "msg err";
-            msg.innerText = "醫護端代碼錯誤";
+
+        if(data.role === "staff"){
+            currentUser = null;
+            enterDashboard("staff");
             return;
         }
-        currentUser = null;
-        enterDashboard("staff");
-        return;
-    }
 
-    const users = getUsers();
-    const user = users.find(u => u.account === account && u.password === password);
-
-    if(!user){
-        msg.className = "msg err";
-        msg.innerText = "使用者帳號或密碼錯誤";
-        return;
-    }
-
-    if(user.status === "pending"){
-        msg.className = "msg err";
-        msg.innerText = "帳號尚未啟用，請等待醫護端審核";
-        return;
-    }
-
-    if(user.status === "disabled"){
-        msg.className = "msg err";
-        msg.innerText = "帳號已停用，請聯絡醫護人員";
-        return;
-    }
-
-    currentUser = user;
-    localStorage.setItem("rehab_current_user", JSON.stringify(user));
-    enterDashboard("user");
+        currentUser = data.user;
+        localStorage.setItem("rehab_current_user", JSON.stringify(data.user));
+        enterDashboard("user");
+    });
 }
 
 function enterDashboard(role){
@@ -943,15 +919,18 @@ function showSection(id, btn){
 }
 
 function renderStaffDashboard(){
-    const users = getUsers();
-    const active = users.filter(u => u.status === "active").length;
-    const pending = users.filter(u => u.status === "pending").length;
-    const disabled = users.filter(u => u.status === "disabled").length;
+    fetch('/api/users')
+    .then(res => res.json())
+    .then(users => {
+        const active = users.filter(u => u.status === "active").length;
+        const pending = users.filter(u => u.status === "pending").length;
+        const disabled = users.filter(u => u.status === "disabled").length;
 
-    document.getElementById("countAll").innerText = users.length;
-    document.getElementById("countActive").innerText = active;
-    document.getElementById("countPending").innerText = pending;
-    document.getElementById("countDisabled").innerText = disabled;
+        document.getElementById("countAll").innerText = users.length;
+        document.getElementById("countActive").innerText = active;
+        document.getElementById("countPending").innerText = pending;
+        document.getElementById("countDisabled").innerText = disabled;
+    });
 }
 
 function statusText(status){
@@ -962,101 +941,131 @@ function statusText(status){
 }
 
 function renderPatientTable(){
-    const users = getUsers();
-    const tbody = document.getElementById("patientTableBody");
-    tbody.innerHTML = "";
+    fetch('/api/users')
+    .then(res => res.json())
+    .then(users => {
+        const tbody = document.getElementById("patientTableBody");
+        tbody.innerHTML = "";
 
-    if(users.length === 0){
-        tbody.innerHTML = `<tr><td colspan="6">目前尚無註冊資料</td></tr>`;
-        return;
-    }
+        if(users.length === 0){
+            tbody.innerHTML = `<tr><td colspan="6">目前尚無註冊資料</td></tr>`;
+            return;
+        }
 
-    users.forEach((u, index) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${u.name}</td>
-            <td>${u.account}</td>
-            <td>${u.idNo}</td>
-            <td>${u.phone}</td>
-            <td>${statusText(u.status)}</td>
-            <td>
-                <button class="action-btn btn-blue" onclick="viewPatient(${index})">查看</button>
-                <button class="action-btn btn-green" onclick="activateUser(${index})">啟用</button>
-                <button class="action-btn btn-orange" onclick="disableUser(${index})">停用</button>
-		 <button class="action-btn btn-red" onclick="deleteUser(${index})">刪除</button>
-
-            </td>
-        `;
-        tbody.appendChild(tr);
+        users.forEach((u) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${u.name}</td>
+                <td>${u.account}</td>
+                <td>${u.idNo}</td>
+                <td>${u.phone}</td>
+                <td>${statusText(u.status)}</td>
+                <td>
+                    <button class="action-btn btn-blue" onclick="viewPatient('${u.account}')">查看</button>
+                    <button class="action-btn btn-green" onclick="activateUser('${u.account}')">啟用</button>
+                    <button class="action-btn btn-orange" onclick="disableUser('${u.account}')">停用</button>
+                    <button class="action-btn btn-red" onclick="deleteUser('${u.account}')">刪除</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     });
 }
 
-function activateUser(index){
-    const users = getUsers();
-    users[index].status = "active";
-    saveUsers(users);
-    renderPatientTable();
-    renderStaffDashboard();
-    alert("已啟用：" + users[index].name);
+function activateUser(account){
+    fetch('/api/activate_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success"){
+            renderPatientTable();
+            renderStaffDashboard();
+            alert("已啟用：" + account);
+        }
+    });
 }
 
-function disableUser(index){
-    const users = getUsers();
-    users[index].status = "disabled";
-    saveUsers(users);
-    renderPatientTable();
-    renderStaffDashboard();
-    alert("已停用：" + users[index].name);
+function disableUser(account){
+    fetch('/api/disable_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success"){
+            renderPatientTable();
+            renderStaffDashboard();
+            alert("已停用：" + account);
+        }
+    });
 }
 
-function deleteUser(index){
-    const users = getUsers();
-    const u = users[index];
-
-    if(!confirm("確定要刪除帳號：" + u.name + "（" + u.account + "）嗎？")){
+function deleteUser(account){
+    if(!confirm("確定要刪除帳號：" + account + " 嗎？")){
         return;
     }
 
-    users.splice(index, 1);
-    saveUsers(users);
+    fetch('/api/delete_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ account })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success"){
+            renderPatientTable();
+            renderStaffDashboard();
 
-    // 如果刪掉的是目前登入使用者，就清掉登入狀態
-    const saved = JSON.parse(localStorage.getItem("rehab_current_user") || "null");
-    if(saved && saved.account === u.account){
-        localStorage.removeItem("rehab_current_user");
-        currentUser = null;
-    }
+            const saved = JSON.parse(localStorage.getItem("rehab_current_user") || "null");
+            if(saved && saved.account === account){
+                localStorage.removeItem("rehab_current_user");
+                currentUser = null;
+            }
 
-    renderPatientTable();
-    renderStaffDashboard();
+            document.getElementById("searchResultText").innerText = "尚未查詢。";
+            document.getElementById("searchMsg").innerText = "";
 
-    document.getElementById("searchResultText").innerText = "尚未查詢。";
-    document.getElementById("searchMsg").innerText = "";
-
-    alert("已刪除：" + u.name);
+            alert("已刪除：" + account);
+        }
+    });
 }
 
 
-function viewPatient(index){
-    const users = getUsers();
-    const u = users[index];
-    document.getElementById("searchResultText").innerHTML = `
-        姓名：${u.name}<br>
-        帳號：${u.account}<br>
-        身分證字號：${u.idNo}<br>
-        手機號碼：${u.phone}<br>
-        狀態：${statusText(u.status)}<br>
-        最後訓練摘要：平均 RPM 42、平均心率 88 bpm、平均血氧 98%
-    `;
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById("patientSearch").classList.add("active");
-    document.querySelectorAll("#staffMenu .menu-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll("#staffMenu .menu-btn")[2].classList.add("active");
+function viewPatient(account){
+    fetch('/api/search_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword: account })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status !== "success"){
+            return;
+        }
+
+        const u = data.user;
+        document.getElementById("searchResultText").innerHTML = `
+            姓名：${u.name}<br>
+            帳號：${u.account}<br>
+            身分證字號：${u.idNo}<br>
+            手機號碼：${u.phone}<br>
+            狀態：${statusText(u.status)}<br>
+            最後訓練摘要：平均 RPM 42、平均心率 88 bpm、平均血氧 98%
+        `;
+
+        document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+        document.getElementById("patientSearch").classList.add("active");
+        document.querySelectorAll("#staffMenu .menu-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll("#staffMenu .menu-btn")[2].classList.add("active");
+    });
 }
 
 function searchPatient(){
     const keyword = document.getElementById("searchKeyword").value.trim();
-    const users = getUsers();
     const msg = document.getElementById("searchMsg");
     const result = document.getElementById("searchResultText");
 
@@ -1066,29 +1075,34 @@ function searchPatient(){
         return;
     }
 
-    const u = users.find(x =>
-        x.account === keyword || x.idNo === keyword || x.phone === keyword
-    );
+    fetch('/api/search_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keyword })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status !== "success"){
+            msg.style.color = "var(--red)";
+            msg.innerText = data.message || "查無資料";
+            result.innerText = "尚未查詢到符合的病人。";
+            return;
+        }
 
-    if(!u){
-        msg.style.color = "var(--red)";
-        msg.innerText = "查無資料";
-        result.innerText = "尚未查詢到符合的病人。";
-        return;
-    }
-
-    msg.style.color = "var(--green)";
-    msg.innerText = "查詢成功";
-    result.innerHTML = `
-        姓名：${u.name}<br>
-        帳號：${u.account}<br>
-        身分證字號：${u.idNo}<br>
-        手機號碼：${u.phone}<br>
-        狀態：${statusText(u.status)}<br>
-        近七日訓練次數：3 次<br>
-        平均 RPM：43<br>
-        平均心率：87 bpm
-    `;
+        const u = data.user;
+        msg.style.color = "var(--green)";
+        msg.innerText = "查詢成功";
+        result.innerHTML = `
+            姓名：${u.name}<br>
+            帳號：${u.account}<br>
+            身分證字號：${u.idNo}<br>
+            手機號碼：${u.phone}<br>
+            狀態：${statusText(u.status)}<br>
+            近七日訓練次數：3 次<br>
+            平均 RPM：43<br>
+            平均心率：87 bpm
+        `;
+    });
 }
 
 function renderUserDashboard(){
@@ -1110,7 +1124,7 @@ function renderUserDashboard(){
     `;
 }
 
-initDemoData();
+
 setRole("user");
 </script>
 </body>
