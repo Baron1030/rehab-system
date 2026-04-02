@@ -822,13 +822,6 @@ function registerUser(){
 
 
 
-
-
-    setTimeout(() => {
-        backToLogin();
-    }, 900);
-}
-
 function login(){
     const account = document.getElementById("loginAccount").value.trim();
     const password = document.getElementById("loginPassword").value.trim();
@@ -1109,18 +1102,14 @@ function renderUserDashboard(){
     const saved = JSON.parse(localStorage.getItem("rehab_current_user") || "null");
     if(!saved) return;
 
-    const users = getUsers();
-    const current = users.find(u => u.account === saved.account);
-    if(!current) return;
-
-    currentUser = current;
-    document.getElementById("userStatAccount").innerText = current.account;
-    document.getElementById("userStatStatus").innerText = statusText(current.status);
+    currentUser = saved;
+    document.getElementById("userStatAccount").innerText = saved.account;
+    document.getElementById("userStatStatus").innerText = statusText(saved.status);
     document.getElementById("userProfileInfo").innerHTML = `
-        姓名：${current.name}<br>
-        帳號：${current.account}<br>
-        身分證字號：${current.idNo}<br>
-        手機號碼：${current.phone}
+        姓名：${saved.name}<br>
+        帳號：${saved.account}<br>
+        身分證字號：${saved.idNo}<br>
+        手機號碼：${saved.phone}
     `;
 }
 
